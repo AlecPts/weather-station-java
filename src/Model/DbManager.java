@@ -159,6 +159,6 @@ public class DbManager implements Callback{
     
     @Override
     public void onWorkDone(JSONObject JO) throws JSONException {
-
+        System.out.println("test");
     }
 }

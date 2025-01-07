@@ -4,15 +4,19 @@
  */
 package View;
 
+import ConnexionHTTP.ConnexionManager;
 import Model.DbManager;
 import Model.WeatherReport;
+
+import java.util.Observable;
+import java.util.Observer;
 
 
 /**
  *
  * @author apeyt
  */
-public class Window extends javax.swing.JFrame{
+public class Window extends javax.swing.JFrame implements Observer {
 
     WeatherReport weatherReport ;
     DbManager dataPollution;
@@ -27,11 +31,13 @@ public class Window extends javax.swing.JFrame{
         
         initComponents();
         weatherReport = WR;
+
+        weatherReport.addObserver(this);
         
         dataPollution = data;
         linegraph = new ViewPollution();
         jPanel_Polution.add(linegraph);
-        
+
     }
     
     
@@ -233,9 +239,22 @@ public class Window extends javax.swing.JFrame{
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton_ActualiserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_ActualiserActionPerformed
+        ConnexionManager con = ConnexionManager.getConnexionManager(weatherReport, dataPollution);
+        con.loadWeather();  // Load weather data
+        con.loadPollution();  // Load pollution data
+
         
     }//GEN-LAST:event_jButton_ActualiserActionPerformed
 
+    @Override
+    public void update(Observable o, Object arg) {
+        Temp_TextField.setText(Double.toString(weatherReport.getTemp()));
+        Min_TextField.setText(Double.toString(weatherReport.getTemp_min()));
+        Max_TextField.setText(Double.toString(weatherReport.getTemp_max()));
+        Lon_TextField.setText(Double.toString(weatherReport.getLon()));
+        Lat_TextField.setText(Double.toString(weatherReport.getLat()));
+        Description_TextField.setText(weatherReport.getDescription());
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField Description_TextField;

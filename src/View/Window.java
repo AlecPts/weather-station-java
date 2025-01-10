@@ -8,6 +8,8 @@ import ConnexionHTTP.ConnexionManager;
 import Model.DbManager;
 import Model.WeatherReport;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -35,7 +37,7 @@ public class Window extends javax.swing.JFrame implements Observer {
         weatherReport.addObserver(this);
         
         dataPollution = data;
-        linegraph = new ViewPollution();
+        linegraph = new ViewPollution(dataPollution);
         jPanel_Polution.add(linegraph);
 
     }
@@ -248,6 +250,7 @@ public class Window extends javax.swing.JFrame implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
+        // Update weather fields
         Temp_TextField.setText(Double.toString(weatherReport.getTemp()));
         Min_TextField.setText(Double.toString(weatherReport.getTemp_min()));
         Max_TextField.setText(Double.toString(weatherReport.getTemp_max()));

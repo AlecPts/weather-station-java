@@ -81,7 +81,6 @@ public class WeatherReport extends Observable implements Callback {
 
     @Override
     public void onWorkDone(JSONObject jsonObj) throws JSONException{
-        System.out.println(jsonObj.toString());
 
         JSONObject mainJson = jsonObj.getJSONObject("main");
         JSONObject coordJson = jsonObj.getJSONObject("coord");

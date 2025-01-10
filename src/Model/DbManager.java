@@ -6,6 +6,11 @@ package Model;
 
 import ConnexionHTTP.Callback;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Observable;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,7 +18,7 @@ import org.json.JSONObject;
  *
  * @author apeyt
  */
-public class DbManager implements Callback{
+public class DbManager extends Observable implements Callback{
     Connection con;
     // https://blog.paumard.org/cours/jdbc/chap02-apercu-exemple.html
     // https://learn.microsoft.com/fr-fr/sql/connect/jdbc/step-3-proof-of-concept-connecting-to-sql-using-java?view=sql-server-ver16
@@ -54,7 +59,7 @@ public class DbManager implements Callback{
      * @param aqi - air quality indice
      * @return true - data added successfully, false - data not added
      */
-    public Boolean addData(int dt, int aqi) 
+    public Boolean addData(int dt, int aqi)
     {
         if (!entryExists(dt))
         {
@@ -74,6 +79,36 @@ public class DbManager implements Callback{
     {
         String query = "DELETE FROM pollution WHERE dt = "+ dt;
         return executeUpdate( query );
+    }
+
+    public ArrayList<int[]> recoverAllData() {
+        String query = "SELECT * FROM pollution";
+        try (Statement statement = con.createStatement()) {
+
+            // Create and execute a SELECT SQL statement.
+            ResultSet resultSet = statement.executeQuery(query);
+
+            // Create list of pollution data
+            int[] listData = new int[2];
+            ArrayList<int[]> pollutionDataList = new ArrayList<>();
+
+            // Print results from select statement
+            while (resultSet.next()) {
+                int dt = resultSet.getInt("dt");
+                int aqi = resultSet.getInt("aqi");
+
+                listData[0] = dt;
+                listData[1] = aqi;
+
+                pollutionDataList.add(listData);
+            }
+
+            return pollutionDataList;
+        }
+        catch (SQLException e) {
+            System.out.println("Error : recoverAllData()"+ e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -159,6 +194,30 @@ public class DbManager implements Callback{
     
     @Override
     public void onWorkDone(JSONObject JO) throws JSONException {
-        System.out.println("test");
+        // Recover pollution data liss
+        JSONArray listJson = JO.getJSONArray("list");
+
+        for (int i = 0; i < listJson.length(); i++) {
+            // Recover current pollution data
+            JSONObject pollutionJson = listJson.getJSONObject(i);
+
+            // Recover datetime and air quality indice
+            int dt = pollutionJson.getInt("dt");
+            int aqi = pollutionJson.getJSONObject("main").getInt("aqi");
+
+            //System.out.println(dateString);
+
+            // Insert data to database
+//            if (createTable()) {
+//                addData(dt, aqi);
+//            }
+
+            addData(dt, aqi);
+        }
+
+        //printAllData();
+
+        setChanged();
+        notifyObservers();
     }
 }

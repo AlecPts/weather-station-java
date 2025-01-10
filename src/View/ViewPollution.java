@@ -5,7 +5,16 @@
 package View;
 
 import java.awt.Dimension;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.JPanel;
+
+import Model.DbManager;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -17,15 +26,18 @@ import org.jfree.data.category.DefaultCategoryDataset;
  *
  * @author apeyt
  */
-public class ViewPollution extends JPanel{
+public class ViewPollution extends JPanel implements Observer {
     
     ChartPanel chartPanel;
+    DbManager dataPollution;
     
-    public ViewPollution(){
+    public ViewPollution(DbManager dataPollution) {
+        this.dataPollution = dataPollution;
+
         initChart( ); 
         
         validate();
-repaint();
+        repaint();
    }
 
     private void initChart() {
@@ -51,18 +63,44 @@ repaint();
         return new Dimension(800, 600);
     }
    
-    private CategoryDataset createDataset( ) {
+    private CategoryDataset createDataset() {
 
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset( );  
-        
-        dataset.addValue( 0 , "pollution" , "1970" );
-        dataset.addValue( 2 , "pollution" , "1980" );
-        dataset.addValue( 1.5 , "pollution" ,  "1990" );
-        dataset.addValue( 2 , "pollution" , "2000" );
-        dataset.addValue( 1 , "pollution" , "2010" );
-        dataset.addValue( 3 , "pollution" , "2014" );
-        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset( );
+
+//        ArrayList<int[]> dataPollutionList = dataPollution.recoverAllData();
+//        System.out.println(dataPollutionList);
+
+//        for (int[] dataList : dataPollutionList) {
+//            int dt = dataList[0];
+//            int aqi = dataList[1];
+//
+//            // Format datetime
+//            long epoch = ((long) dt) * 1000;  // to long and millisecond
+//            Date date = new Date(epoch);
+//
+//            String pattern = "yyyy-MM-dd";
+//            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+//            String dateString = sdf.format(date);
+//
+//            String year = dateString.substring(0, 4);
+//
+//            dataset.addValue(dataList[1], "pollution", String.valueOf(dataList[0]));
+//        }
+
+
+        dataPollution.printAllData();
+
+        ArrayList<int[]> dataPollutionList = dataPollution.recoverAllData();
+
+        for (int[] dataList : dataPollutionList) {
+            System.out.println(dataList[0] + " " + dataList[1]);
+        }
+
         return dataset; 
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        initChart();
+    }
 }
